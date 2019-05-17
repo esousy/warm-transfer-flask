@@ -1,5 +1,6 @@
 from twilio.twiml.voice_response import VoiceResponse, Dial
 
+from os import environ as ENV
 
 def generate_wait():
     twiml_response = VoiceResponse()
@@ -17,4 +18,27 @@ def generate_connect_conference(call_sid, wait_url, start_on_enter, end_on_exit)
                     start_conference_on_enter=start_on_enter,
                     end_conference_on_exit=end_on_exit,
                     wait_url=wait_url)
-    return str(twiml_response.append(dial))
+    res = str(twiml_response.append(dial))
+    print 'generate_connect_conference'
+    print res
+    return res
+
+def generate_call_agent(from_, agent_id, callback_url, is_sip =  False):
+    account_sid = ENV['TWILIO_ACCOUNT_SID']
+    auth_token = ENV['TWILIO_AUTH_TOKEN']
+    my_number = ENV['TWILIO_NUMBER']
+    #from_ = my_number
+    #from_ = my_number
+    if 'sip:' in from_:
+        from_numbers=from_.split(':')[1]
+        from_ = from_numbers.split('@')[0]
+    twiml_response = VoiceResponse()
+    dial = Dial(caller_id=from_)
+    if is_sip:
+        dial.sip(agent_id)
+    else:
+        dial.number(agent_id)
+    twiml_response.append(dial)
+    res = str(twiml_response)
+    print res
+    return res
